@@ -1,10 +1,11 @@
 package com.springboot.jwt.controller;
 
+import com.springboot.jwt.exception.ServiceException;
+import com.springboot.jwt.security.jwt.TokenValidationHelper;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -32,5 +33,14 @@ public class TestAuthenticationController {
     @PreAuthorize("hasRole('ADMIN')")
     public String adminAccess() {
         return "Admin Board.";
+    }
+
+    @PostMapping("/verify")
+    public boolean verifyToken(HttpServletRequest httpServletRequest) throws ServiceException {
+        String token = TokenValidationHelper.parseAuthorizationHeader(httpServletRequest);
+        //TODO : Add login for verifying the JWT token . Only for test purposes
+        return true;
+
+
     }
 }

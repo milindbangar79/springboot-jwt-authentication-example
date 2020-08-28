@@ -4,9 +4,3 @@ spring:
       database: user_db
       host: localhost
       port: 27017
-
-#Application Properties#
-auth:
-  app:
-    jwtSecret: authSecretKey
-    jwtExpirationMs: 86400000
