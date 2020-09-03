@@ -9,7 +9,7 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
-      day: "Sunday"
+      day: "sunday"
     commit-message:
       # Prefix all commit messages with "java"
       prefix: "java"
