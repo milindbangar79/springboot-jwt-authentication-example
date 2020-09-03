@@ -31,10 +31,10 @@ public class TokenValidationHelper {
 
         if(Arrays.asList(token.split(" ")).contains(AuthenticationConstants.AUTHORIZATION_TYPE)){
         } else {
-            log.error("Token us not of type bearer");
+            log.error("Token is not of type bearer");
             throw new ServiceException(AuthenticationConstants.INVALID_TOKEN);
         }
 
-        return Arrays.asList(token.split(" ")).get(1);
+        return Arrays.asList(token.split(" ")).get(1).toString();
     }
 }

@@ -12,6 +12,8 @@ import com.springboot.jwt.repository.RoleRepository;
 import com.springboot.jwt.repository.UserRepository;
 import com.springboot.jwt.security.jwt.JWTUtils;
 import com.springboot.jwt.security.services.UserDetailsSvcImplementation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,7 +38,9 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/auth")
 public class AuthenticationController {
 
-    public static final String ERROR_ROLE_IS_NOT_FOUND = "Error: Role is not found.";
+    private static final Logger log = LoggerFactory.getLogger(AuthenticationController.class);
+    private static final String EXCEPTION_MESSAGE = "Exception Received While Processing Request {} with exception {}";
+    private static final String ERROR_ROLE_IS_NOT_FOUND = "Error: Role is not found.";
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -53,7 +57,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) throws ServiceException, URISyntaxException {
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
@@ -73,16 +77,16 @@ public class AuthenticationController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<MessageResponse> registerUser(@Valid @RequestBody SignUpRequest signUpRequest){
+    public ResponseEntity<MessageResponse> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) throws ServiceException {
 
 
-        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+        if (Boolean.TRUE.equals(userRepository.existsByUsername(signUpRequest.getUsername()))) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Username is already taken!"));
         }
 
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+        if (Boolean.TRUE.equals(userRepository.existsByEmail(signUpRequest.getEmail()))) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Email is already in use!"));
@@ -98,26 +102,41 @@ public class AuthenticationController {
 
         if (strRoles == null) {
             Role userRole = roleRepository.findByName(RoleEnum.ROLE_USER)
-                    .orElseThrow(() -> new RuntimeException(ERROR_ROLE_IS_NOT_FOUND));
+                    .orElseThrow(() -> new ServiceException(ERROR_ROLE_IS_NOT_FOUND));
             roles.add(userRole);
         } else {
             strRoles.forEach(role -> {
                 switch (role) {
                     case "admin":
-                        Role adminRole = roleRepository.findByName(RoleEnum.ROLE_ADMIN)
-                                .orElseThrow(() -> new RuntimeException(ERROR_ROLE_IS_NOT_FOUND));
+                        Role adminRole = null;
+                        try {
+                            adminRole = roleRepository.findByName(RoleEnum.ROLE_ADMIN)
+                                    .orElseThrow(() -> new ServiceException(ERROR_ROLE_IS_NOT_FOUND));
+                        } catch (ServiceException e) {
+                            log.error(EXCEPTION_MESSAGE, new ServiceException(ERROR_ROLE_IS_NOT_FOUND), e.getMessage());
+                        }
                         roles.add(adminRole);
 
                         break;
                     case "mod":
-                        Role modRole = roleRepository.findByName(RoleEnum.ROLE_MODERATOR)
-                                .orElseThrow(() -> new RuntimeException(ERROR_ROLE_IS_NOT_FOUND));
+                        Role modRole = null;
+                        try {
+                            modRole = roleRepository.findByName(RoleEnum.ROLE_MODERATOR)
+                                    .orElseThrow(() -> new ServiceException(ERROR_ROLE_IS_NOT_FOUND));
+                        } catch (ServiceException e) {
+                            log.error(EXCEPTION_MESSAGE, new ServiceException(ERROR_ROLE_IS_NOT_FOUND), e.getMessage());
+                        }
                         roles.add(modRole);
 
                         break;
                     default:
-                        Role userRole = roleRepository.findByName(RoleEnum.ROLE_USER)
-                                .orElseThrow(() -> new RuntimeException(ERROR_ROLE_IS_NOT_FOUND));
+                        Role userRole = null;
+                        try {
+                            userRole = roleRepository.findByName(RoleEnum.ROLE_USER)
+                                    .orElseThrow(() -> new ServiceException(ERROR_ROLE_IS_NOT_FOUND));
+                        } catch (ServiceException e) {
+                            log.error(EXCEPTION_MESSAGE, new ServiceException(ERROR_ROLE_IS_NOT_FOUND), e.getMessage());
+                        }
                         roles.add(userRole);
                 }
             });
@@ -130,10 +149,10 @@ public class AuthenticationController {
 
     @PostMapping("/logout")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity logoutUser() {
+    public ResponseEntity<MessageResponse> logoutUser() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         securityContext.setAuthentication(null);
         return ResponseEntity.ok(new MessageResponse("logout successful"));
     }
 
-    }
+}

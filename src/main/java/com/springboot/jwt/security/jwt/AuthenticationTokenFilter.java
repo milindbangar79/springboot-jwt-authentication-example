@@ -1,15 +1,14 @@
 package com.springboot.jwt.security.jwt;
 
 import com.springboot.jwt.security.services.UserDetailsSvceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -22,16 +21,13 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(AuthenticationTokenFilter.class);
 
-    private JWTUtils jwtUtils;
-    private UserDetailsSvceImpl userDetailsSvce;
-
-    public AuthenticationTokenFilter(){}
+    @Autowired
+    JWTUtils jwtUtils;
 
     @Autowired
-    public AuthenticationTokenFilter(final JWTUtils jwtUtils, final UserDetailsSvceImpl userDetailsSvce){
-        this.jwtUtils = jwtUtils;
-        this.userDetailsSvce = userDetailsSvce;
-    }
+    UserDetailsSvceImpl userDetailsSvc;
+
+    public AuthenticationTokenFilter(){}
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
@@ -39,13 +35,11 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
         try {
             String jwt = TokenValidationHelper.parseAuthorizationHeader(httpServletRequest);
 
-            if (StringUtils.isEmpty(jwt) && jwtUtils.validateJwtToken(jwt)) {
+            if (StringUtils.isNotEmpty(jwt) && jwtUtils.validateJwtToken(jwt)) {
 
                 String username = jwtUtils.getUserNameFromJwtToken(jwt);
 
-                log.info("UserName in JWT :::: {}",username);
-
-                UserDetails userDetails = userDetailsSvce.loadUserByUsername(username);
+                UserDetails userDetails = userDetailsSvc.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
                         userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
@@ -53,9 +47,8 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception e) {
-            log.error("Cannot set user authentication: {}", e.getCause());
+            log.error("Cannot set user authentication with exception : {} and cause", e,e.getCause());
         }
-
         filterChain.doFilter(httpServletRequest, httpServletResponse);
 
     }

@@ -1,7 +1,11 @@
 package com.springboot.jwt.controller;
 
 import com.springboot.jwt.exception.ServiceException;
+import com.springboot.jwt.payloads.response.MessageResponse;
+import com.springboot.jwt.security.jwt.JWTUtils;
 import com.springboot.jwt.security.jwt.TokenValidationHelper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +15,9 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("/api/test")
 public class TestAuthenticationController {
+
+    @Autowired
+    JWTUtils jwtUtils;
 
     @GetMapping("/all")
     public String allAccess() {
@@ -36,11 +43,14 @@ public class TestAuthenticationController {
     }
 
     @PostMapping("/verify")
-    public boolean verifyToken(HttpServletRequest httpServletRequest) throws ServiceException {
+    public ResponseEntity<MessageResponse> verifyToken(HttpServletRequest httpServletRequest) throws ServiceException {
+
         String token = TokenValidationHelper.parseAuthorizationHeader(httpServletRequest);
-        //TODO : Add login for verifying the JWT token . Only for test purposes
-        return true;
 
-
+        if(jwtUtils.validateJwtToken(token)){
+            return ResponseEntity.ok(new MessageResponse("Token is valid"));
+        } else {
+            return ResponseEntity.ok(new MessageResponse("Token is invalid"));
+        }
     }
 }
