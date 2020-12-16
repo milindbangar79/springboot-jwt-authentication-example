@@ -146,23 +146,21 @@ public class AuthenticationController {
         return ResponseEntity.ok(new MessageResponse("logout successful"));
     }
 
-    private ResponseEntity<MessageResponse> isUsernameAlreadyInUse(SignUpRequest signUpRequest){
+    private void isUsernameAlreadyInUse(SignUpRequest signUpRequest){
 
         if (Boolean.TRUE.equals(userRepository.existsByUsername(signUpRequest.getUsername()))) {
-            return ResponseEntity
+            ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Username is already taken!"));
         }
-        return null;
     }
 
-    private ResponseEntity<MessageResponse> isEmailAlreadyInUse(String email) {
+    private void isEmailAlreadyInUse(String email) {
         if (Boolean.TRUE.equals(userRepository.existsByEmail(email))) {
-            return ResponseEntity
+            ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Email is already in use!"));
         }
-        return null;
     }
 
 }
