@@ -1,4 +1,4 @@
-package com.springboot.jwt.security.services;
+package com.springboot.jwt.services;
 
 import com.springboot.jwt.models.User;
 import com.springboot.jwt.repository.UserRepository;
@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserDetailsSvceImpl implements UserDetailsService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Autowired
     public UserDetailsSvceImpl(final UserRepository userRepository){

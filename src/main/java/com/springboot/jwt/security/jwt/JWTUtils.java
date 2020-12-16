@@ -2,7 +2,7 @@ package com.springboot.jwt.security.jwt;
 
 
 import com.springboot.jwt.exception.ServiceException;
-import com.springboot.jwt.security.services.UserDetailsSvcImplementation;
+import com.springboot.jwt.services.UserDetailsSvcImplementation;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SecurityException;
 import org.slf4j.Logger;

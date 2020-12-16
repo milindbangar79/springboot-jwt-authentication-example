@@ -1,4 +1,4 @@
-package com.springboot.jwt.security.services;
+package com.springboot.jwt.services;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.springboot.jwt.models.User;

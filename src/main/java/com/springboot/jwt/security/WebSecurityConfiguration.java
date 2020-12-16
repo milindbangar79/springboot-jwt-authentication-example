@@ -3,7 +3,7 @@ package com.springboot.jwt.security;
 
 import com.springboot.jwt.security.jwt.AuthenticationEntryPointJwt;
 import com.springboot.jwt.security.jwt.AuthenticationTokenFilter;
-import com.springboot.jwt.security.services.UserDetailsSvceImpl;
+import com.springboot.jwt.services.UserDetailsSvceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

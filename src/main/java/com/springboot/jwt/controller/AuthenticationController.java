@@ -11,7 +11,7 @@ import com.springboot.jwt.payloads.response.MessageResponse;
 import com.springboot.jwt.repository.RoleRepository;
 import com.springboot.jwt.repository.UserRepository;
 import com.springboot.jwt.security.jwt.JWTUtils;
-import com.springboot.jwt.security.services.UserDetailsSvcImplementation;
+import com.springboot.jwt.services.UserDetailsSvcImplementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -79,18 +78,8 @@ public class AuthenticationController {
     @PostMapping("/signup")
     public ResponseEntity<MessageResponse> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) throws ServiceException {
 
-
-        if (Boolean.TRUE.equals(userRepository.existsByUsername(signUpRequest.getUsername()))) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: Username is already taken!"));
-        }
-
-        if (Boolean.TRUE.equals(userRepository.existsByEmail(signUpRequest.getEmail()))) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: Email is already in use!"));
-        }
+        isUsernameAlreadyInUse(signUpRequest);
+        isEmailAlreadyInUse(signUpRequest.getEmail());
 
         // Create new user's account
         User user = new User(signUpRequest.getUsername(),
@@ -147,12 +136,33 @@ public class AuthenticationController {
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
+
+
     @PostMapping("/logout")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> logoutUser() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         securityContext.setAuthentication(null);
         return ResponseEntity.ok(new MessageResponse("logout successful"));
+    }
+
+    private ResponseEntity<MessageResponse> isUsernameAlreadyInUse(SignUpRequest signUpRequest){
+
+        if (Boolean.TRUE.equals(userRepository.existsByUsername(signUpRequest.getUsername()))) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Username is already taken!"));
+        }
+        return null;
+    }
+
+    private ResponseEntity<MessageResponse> isEmailAlreadyInUse(String email) {
+        if (Boolean.TRUE.equals(userRepository.existsByEmail(email))) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Email is already in use!"));
+        }
+        return null;
     }
 
 }

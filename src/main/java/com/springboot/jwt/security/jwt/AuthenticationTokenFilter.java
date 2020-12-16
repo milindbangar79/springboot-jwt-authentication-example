@@ -1,6 +1,6 @@
 package com.springboot.jwt.security.jwt;
 
-import com.springboot.jwt.security.services.UserDetailsSvceImpl;
+import com.springboot.jwt.services.UserDetailsSvceImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

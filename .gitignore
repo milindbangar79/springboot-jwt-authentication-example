@@ -25,3 +25,4 @@ hs_err_pid*
 # IDE folder exclusions
 .idea
 target
+.DS_Store
