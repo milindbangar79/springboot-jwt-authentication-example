@@ -78,7 +78,7 @@
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>2.3.3</version>
+            <version>3.0.0</version>
         </dependency>
 
         <dependency>
@@ -91,7 +91,27 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>29.0-jre</version>
+            <version>30.0-jre</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
 
         <dependency>
@@ -104,11 +124,9 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!-- https://mvnrepository.com/artifact/com.tngtech.archunit/archunit-junit5-api -->
         <dependency>
             <groupId>com.tngtech.archunit</groupId>
-            <artifactId>archunit-junit5-api</artifactId>
+            <artifactId>archunit-junit5</artifactId>
             <version>0.14.1</version>
             <scope>test</scope>
         </dependency>
@@ -124,7 +142,7 @@
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
-                <version>2.5.2</version>
+                <version>2.7.0</version>
                 <configuration>
                     <from>
                         <image>openjdk:11.0.7-slim</image>
@@ -144,4 +162,48 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>arch-maven</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.societegenerale.commons</groupId>
+                        <artifactId>arch-unit-maven-plugin</artifactId>
+                        <version>2.6.1</version>
+                        <configuration>
+
+                            <rules>
+                                <preConfiguredRules>
+                                    <rule>com.societegenerale.commons.plugin.rules.NoStandardStreamRuleTest</rule>
+                                    <rule>com.societegenerale.commons.plugin.rules.NoJunitAssertRuleTest</rule>
+                                    <rule>com.societegenerale.commons.plugin.rules.NoJodaTimeRuleTest</rule>
+                                    <rule>com.societegenerale.commons.plugin.rules.NoJavaUtilDateRuleTest</rule>
+                                    <rule>com.societegenerale.commons.plugin.rules.NoPowerMockRuleTest</rule>
+                                    <rule>com.societegenerale.commons.plugin.rules.NoPrefixForInterfacesRuleTest</rule>
+                                    <rule>com.societegenerale.commons.plugin.rules.NoPublicFieldRuleTest</rule>
+
+                                    <!-- you may want to use one of the below rules, but not both at same time -->
+                                    <rule>com.societegenerale.commons.plugin.rules.NoTestIgnoreRuleTest</rule>
+                                    <rule>com.societegenerale.commons.plugin.rules.NoTestIgnoreWithoutCommentRuleTest</rule>
+
+                                    <rule>com.societegenerale.commons.plugin.rules.NoInjectedFieldTest</rule>
+                                    <rule>com.societegenerale.commons.plugin.rules.NoAutowiredFieldTest</rule>
+                                </preConfiguredRules>
+                            </rules>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>arch-test</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

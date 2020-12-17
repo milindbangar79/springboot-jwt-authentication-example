@@ -12,8 +12,8 @@ import com.springboot.jwt.repository.RoleRepository;
 import com.springboot.jwt.repository.UserRepository;
 import com.springboot.jwt.security.jwt.JWTUtils;
 import com.springboot.jwt.services.UserDetailsSvcImplementation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,7 +37,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/auth")
 public class AuthenticationController {
 
-    private static final Logger log = LoggerFactory.getLogger(AuthenticationController.class);
+    private static final Logger log = LogManager.getLogger(AuthenticationController.class);
+
     private static final String EXCEPTION_MESSAGE = "Exception Received While Processing Request {} with exception {}";
     private static final String ERROR_ROLE_IS_NOT_FOUND = "Error: Role is not found.";
     private final AuthenticationManager authenticationManager;
@@ -57,6 +58,7 @@ public class AuthenticationController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
@@ -90,8 +92,7 @@ public class AuthenticationController {
         Set<Role> roles = new HashSet<>();
 
         if (strRoles == null) {
-            Role userRole = roleRepository.findByName(RoleEnum.ROLE_USER)
-                    .orElseThrow(() -> new ServiceException(ERROR_ROLE_IS_NOT_FOUND));
+            Role userRole = checkForRoleTypeAndUpdateUserInformation(RoleEnum.ROLE_USER);
             roles.add(userRole);
         } else {
             strRoles.forEach(role -> {
@@ -99,8 +100,7 @@ public class AuthenticationController {
                     case "admin":
                         Role adminRole = null;
                         try {
-                            adminRole = roleRepository.findByName(RoleEnum.ROLE_ADMIN)
-                                    .orElseThrow(() -> new ServiceException(ERROR_ROLE_IS_NOT_FOUND));
+                            adminRole = checkForRoleTypeAndUpdateUserInformation(RoleEnum.ROLE_ADMIN);
                         } catch (ServiceException e) {
                             log.error(EXCEPTION_MESSAGE, new ServiceException(ERROR_ROLE_IS_NOT_FOUND), e.getMessage());
                         }
@@ -110,19 +110,16 @@ public class AuthenticationController {
                     case "mod":
                         Role modRole = null;
                         try {
-                            modRole = roleRepository.findByName(RoleEnum.ROLE_MODERATOR)
-                                    .orElseThrow(() -> new ServiceException(ERROR_ROLE_IS_NOT_FOUND));
+                            modRole = checkForRoleTypeAndUpdateUserInformation(RoleEnum.ROLE_MODERATOR);
                         } catch (ServiceException e) {
                             log.error(EXCEPTION_MESSAGE, new ServiceException(ERROR_ROLE_IS_NOT_FOUND), e.getMessage());
                         }
                         roles.add(modRole);
-
                         break;
                     default:
                         Role userRole = null;
                         try {
-                            userRole = roleRepository.findByName(RoleEnum.ROLE_USER)
-                                    .orElseThrow(() -> new ServiceException(ERROR_ROLE_IS_NOT_FOUND));
+                            userRole = checkForRoleTypeAndUpdateUserInformation(RoleEnum.ROLE_USER);
                         } catch (ServiceException e) {
                             log.error(EXCEPTION_MESSAGE, new ServiceException(ERROR_ROLE_IS_NOT_FOUND), e.getMessage());
                         }
@@ -135,8 +132,6 @@ public class AuthenticationController {
         userRepository.save(user);
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
-
-
 
     @PostMapping("/logout")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
@@ -163,4 +158,8 @@ public class AuthenticationController {
         }
     }
 
+    private Role checkForRoleTypeAndUpdateUserInformation(RoleEnum roleEnum) throws ServiceException {
+        return roleRepository.findByName(roleEnum)
+                .orElseThrow(() -> new ServiceException(ERROR_ROLE_IS_NOT_FOUND));
+    }
 }

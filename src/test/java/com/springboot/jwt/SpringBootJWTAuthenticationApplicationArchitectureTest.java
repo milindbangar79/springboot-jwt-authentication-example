@@ -6,6 +6,7 @@ import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.library.Architectures;
 import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
+
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -71,5 +72,6 @@ class SpringBootJWTAuthenticationApplicationArchitectureTest {
 
         arch.check(javaClasses);
     }
+
 
 }

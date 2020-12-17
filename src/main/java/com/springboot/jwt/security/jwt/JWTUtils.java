@@ -5,8 +5,8 @@ import com.springboot.jwt.exception.ServiceException;
 import com.springboot.jwt.services.UserDetailsSvcImplementation;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SecurityException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -31,7 +31,9 @@ public class JWTUtils {
     @Value("${auth.app.privateKey.alias}")
     private String privateKeyAlias;
 
-    private static final Logger logger = LoggerFactory.getLogger(JWTUtils.class);
+    private static final Logger logger = LogManager.getLogger(JWTUtils.class);
+
+    //Do not use this approach for actualt implementation. Instead use Key based approach
     private static final String ENCODED_KEY = "SecretKeyToGenJWTsToGenerateTokenWhichWillBeUsedEventuallyToDecodeAndGetSubject";
 
     /**

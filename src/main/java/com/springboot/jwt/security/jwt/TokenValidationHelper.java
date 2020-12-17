@@ -3,15 +3,17 @@ package com.springboot.jwt.security.jwt;
 import com.springboot.jwt.constants.AuthenticationConstants;
 import com.springboot.jwt.exception.ServiceException;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 
 
 public class TokenValidationHelper {
-    private static final Logger log = LoggerFactory.getLogger(TokenValidationHelper.class);
+
+    private static final Logger log = LogManager.getLogger(TokenValidationHelper.class);
 
     /**
      * Empty private constructor
@@ -30,11 +32,10 @@ public class TokenValidationHelper {
         }
 
         if(Arrays.asList(token.split(" ")).contains(AuthenticationConstants.AUTHORIZATION_TYPE)){
+            return Arrays.asList(token.split(" ")).get(1);
         } else {
             log.error("Token is not of type bearer");
             throw new ServiceException(AuthenticationConstants.INVALID_TOKEN);
         }
-
-        return Arrays.asList(token.split(" ")).get(1).toString();
     }
 }

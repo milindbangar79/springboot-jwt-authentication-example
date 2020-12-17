@@ -33,7 +33,7 @@ public class KeyStoreAccessorHelper {
         try (InputStream inputStream = Resources.getResource("identity-new.jks").openStream()) {
             if (null == inputStream) {
                 log.debug("Keystore from path {} could not be loaded", this.path);
-                throw new ServiceException(new StringBuilder().append("KeyStore from path ").append(path).append(" could not be loaded").toString(),new Exception().fillInStackTrace());
+                throw new ServiceException("KeyStore from path " + path + " could not be loaded",new ServiceException().fillInStackTrace());
             }
 
             this.keyStore = KeyStore.getInstance("JKS");

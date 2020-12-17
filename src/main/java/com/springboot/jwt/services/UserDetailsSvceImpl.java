@@ -19,7 +19,6 @@ public class UserDetailsSvceImpl implements UserDetailsService {
         this.userRepository = userRepository;
     }
 
-
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
