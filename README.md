@@ -34,3 +34,10 @@ keytool -importkeystore -destkeystore identity.jks -deststorepass password -srck
 ![](images/AuthenticateUserFlow.png)
 
 
+## Added Support for ArchUnit To check the Code Architecture and design
+
+**I am using Junit5 dependency to run the tests**
+
+* For more info on ArchUnit --> https://www.archunit.org/
+* Documentation --> https://www.archunit.org/userguide/html/000_Index.html
+
