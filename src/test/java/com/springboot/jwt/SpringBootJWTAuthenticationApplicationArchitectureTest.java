@@ -38,7 +38,7 @@ class SpringBootJWTAuthenticationApplicationArchitectureTest {
     }
 
     @Test
-    public void givenControllerLayerClasses_thenCheckWithFrameworkDependenciesSuccess() {
+    void givenControllerLayerClasses_thenCheckWithFrameworkDependenciesSuccess() {
         JavaClasses javaClasses = new ClassFileImporter().importPackages("com.springboot.jwt");
 
         ArchRule archRule = classes()
